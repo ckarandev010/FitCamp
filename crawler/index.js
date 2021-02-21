@@ -79,6 +79,10 @@ async function driver() {
           exercise_memo[exercise_url] = data;
         }
         console.log(exercise_memo[exercise_url]);
+        fs.appendFileSync(
+          "data.csv",
+          `${body_part};${exercise_memo[exercise_url].exercise_name};${exercise_memo[exercise_url].preparation};${exercise_memo[exercise_url].execution}\n`
+        );
         csv_data.push({ body_part, ...exercise_memo[exercise_url] });
       } catch (e) {
         console.error(chalk.red(e.message));
@@ -88,9 +92,8 @@ async function driver() {
     await browser.close();
   }
   console.log(csv_data);
-  const header = ["body_part", "exercise_name", "preparation", "execution"];
-  const csv = convertArrayToCSV(csv_data, header);
-  fs.writeFileSync("data.csv", csv);
+  //const header = ["body_part", "exercise_name", "preparation", "execution"];
+  //const csv = convertArrayToCSV(csv_data, header);
 }
 
 driver();
