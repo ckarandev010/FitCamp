@@ -14,6 +14,7 @@ const options = [
 export default function Home(props) {
   const [dropDownOption, setDropDownOption] = useState(0);
   const [bodyFatPercentage, setBodyFatPercentage] = useState(null);
+  const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(false);
   const fileinp = useRef();
 
@@ -21,12 +22,13 @@ export default function Home(props) {
     //Do api call
     //Get body fat percentage and exercise routine
     console.log(e.target.files[0]);
-    const { bodyFatPercentage: BFP } = await server.analyseImage(
+    const { bodyFatPercentage: BFP, exercises: ex } = await server.analyseImage(
       props.user.uid,
       e.target.files[0],
       options[dropDownOption]
     );
     setBodyFatPercentage(BFP);
+    setExercises(ex);
     setLoading(false);
   };
 
@@ -105,6 +107,12 @@ export default function Home(props) {
                 ],
               }}
             />
+          </div>
+          <div>
+            <h1>Recommended Exercises for you to achieve your goal!</h1>
+            {exercises.map((exercise) => (
+              <p>{exercise.exercise_name}</p>
+            ))}
           </div>
         </div>
       ) : (

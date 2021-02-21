@@ -49,7 +49,7 @@ module.exports.analyseImage = async (uid, image, target) => {
     body: JSON.stringify({ uid, bodyFatPercentage, target }),
   });
   const body = await response.json();
-  const { exercises } = body;
+  const { exercises } = body.data;
   return { bodyFatPercentage, exercises };
 };
 

@@ -1,5 +1,7 @@
 const chalk = require("chalk");
 const User = require("../models/User");
+const csv = require("csv-parser");
+const fs = require("fs");
 
 module.exports.register = async (req, res, next) => {
   try {
@@ -18,22 +20,47 @@ module.exports.register = async (req, res, next) => {
   }
 };
 
+function getRandom(arr, n) {
+  var result = new Array(n),
+    len = arr.length,
+    taken = new Array(len);
+  if (n > len)
+    throw new RangeError("getRandom: more elements taken than available");
+  while (n--) {
+    var x = Math.floor(Math.random() * len);
+    result[n] = arr[x in taken ? taken[x] : x];
+    taken[x] = --len in taken ? taken[len] : len;
+  }
+  return result;
+}
+
 module.exports.analyse = async (req, res, next) => {
   try {
+    const results = [];
     const { uid, bodyFatPercentage, target } = req.body;
     //TODO:Get exercises
-    console.log(chalk.yellow("Adding a new entry..."));
-    await User.newEntry({
-      uid,
-      timeStamp: new Date().getTime(),
-      bodyFatPercentage,
-      target,
-    });
-    console.log(chalk.green("Done!"));
-    res.status(200).send({
-      statusCode: 200,
-      msg: "Successfully added new entry",
-    });
+    fs.createReadStream("data.csv")
+      .pipe(csv({ separator: ";" }))
+      .on("data", (data) => results.push(data))
+      .on("end", async () => {
+        const exercises = getRandom(results, 5);
+        console.log(chalk.yellow("Adding a new entry..."));
+        await User.newEntry({
+          uid,
+          timeStamp: new Date().getTime(),
+          bodyFatPercentage,
+          target,
+          exercises,
+        });
+        console.log(chalk.green("Done!"));
+        res.status(200).send({
+          statusCode: 200,
+          msg: "Successfully added new entry",
+          data: {
+            exercises,
+          },
+        });
+      });
   } catch (e) {
     next(e);
   }

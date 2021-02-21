@@ -19,11 +19,15 @@ module.exports.newEntry = async ({
   await users
     .doc(uid)
     .collection("progress")
-    .add({ timeStamp, bodyFatPercentage, target });
+    .add({ timeStamp, bodyFatPercentage, target, exercises });
 };
 
 module.exports.getProgress = async (uid) => {
-  const queryRef = await users.doc(uid).collection("progress").get();
+  const queryRef = await users
+    .doc(uid)
+    .collection("progress")
+    .orderBy("timeStamp")
+    .get();
   //console.log(queryRef.docs);
   return queryRef.docs.map((doc) => doc.data());
 };
